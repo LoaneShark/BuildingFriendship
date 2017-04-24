@@ -29,6 +29,7 @@
 ; Neuroticism: "Moodiness" or anxiety, will respond worse to stress or hostile
 ;           behavior, interprets threats with much greater severity.
 
+(defparameter *n-agents* 4)
 ; This is just an example/placeholder 
 (defparameter *agent-names* '(Happy Sleepy Dopey Bashful Grumpy Sneezy Doc))
 (defparameter *agent-traits* (make-hash-table :test 'equal))
@@ -61,7 +62,7 @@
 
 (defparameter *agent-array* 
    (make-array *n-agents* :initial-contents 
-        (butlast *agent-names* (- 10 *n-agents*))))
+        (butlast *agent-names* (- (length *agent-names*) *n-agents*))))
 (defparameter *agent-positions*
    (make-array *n-agents* :initial-contents 
         '(P13 P35 P41 P51))); ** may be replaced by randomized positions
@@ -80,7 +81,7 @@
 ; agents will likely not actually communicate (just "talk" as an action),
 ; but possibly could add modifiers to it, dependant on mood and
 ; opinion of others (e.g. talk-friendly, talk-hostile, etc.)
-(setq *operators* '(walk stay-put work sleep eat talk help sing))
+(setq *operators* '(walk stay-put work sleep eat talk help sing)) ;; TODO: add play
 
 (defun reward-for-walk? (x z)
 ;~~~~~~~~~~~~~~~~~~~~~~~~~~~~
