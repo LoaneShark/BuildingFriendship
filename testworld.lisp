@@ -29,7 +29,6 @@
 ; Neuroticism: "Moodiness" or anxiety, will respond worse to stress or hostile
 ;           behavior, interprets threats with much greater severity.
 
-(defparameter *n-agents* 4)
 ; This is just an example/placeholder 
 (defparameter *agent-names* '(Happy Sleepy Dopey Bashful Grumpy Sneezy Doc))
 (defparameter *agent-traits* (make-hash-table :test 'equal))
