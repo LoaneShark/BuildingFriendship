@@ -116,18 +116,18 @@
            (gethash y *agent-goal-indices*)) 10 -1))
 
 ; ?x tries to eat ?y, if not full, in same space (?z) and ?y is edible
-(setq eat
-  (make-op :name 'eat :pars '(?x ?y ?z)
-	   :preconds '((is_at ?x ?z)
-		       (is_at ?y ?z)
-		       (is_edible ?y)
-		       (not (is_full ?x))
-		       (not (in_danger ?x)))
-	   :effects '((not (is_at ?y ?z))
-		      (is_full ?x))
-	   :time-required 1
-	   ; should probably figure out what the value of eating is
-	   :value 1))
+;(setq eat
+;  (make-op :name 'eat :pars '(?x ?y ?z)
+;	   :preconds '((is_at ?x ?z)
+;		       (is_at ?y ?z)
+;		       (is_edible ?y)
+;		       (not (is_full ?x))
+;		       (not (in_danger ?x)))
+;	   :effects '((not (is_at ?y ?z))
+;		      (is_full ?x))
+;	   :time-required 1
+;	   ; should probably figure out what the value of eating is
+;	   :value 1))
 ; ?x does some miscellaneous work that it has to do. Need to find out how
 ; to properly evaluate stress/danger (as it is dependant on ?x's traits)
 ; will probably need to convert it to a numerical value (rather than is/isnt)
@@ -152,17 +152,17 @@
 ; ?x attempts to sleep at location ?z
 ; cannot be interrupted by sense of danger or discomfort, only if 
 ; `is_noisy' is updated. 
-(setq sleep
-  (make-op :name 'sleep :pars '(?x ?z)
-	   :preconds '((is_tired ?x)
-		       (is_at ?x ?z)
-		       (not (in_danger ?x))
-		       (not (is_noisy ?z)))
-	   :effects '((not (is_tired ?x)))
-	   :time-required 4
-	   :value '(reward-for-sleep? ?x)))
+;(setq sleep
+;  (make-op :name 'sleep :pars '(?x ?z)
+;	   :preconds '((is_tired ?x)
+;		       (is_at ?x ?z)
+;		       (not (in_danger ?x))
+;		       (not (is_noisy ?z)))
+;	   :effects '((not (is_tired ?x)))
+;	   :time-required 4
+;	   :value '(reward-for-sleep? ?x)))
 ; dependant on their level of tiredness and sense of obligation (i.e. work to do)
-(defun reward-for-sleep? (x) 1)
+;(defun reward-for-sleep? (x) 1)
 
 ;; Not quite sure how to implement this one, but it should do the following:
 ;;     - Double the rate of time being used for an action (make it go faster)
