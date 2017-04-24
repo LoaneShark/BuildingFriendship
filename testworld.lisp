@@ -81,13 +81,8 @@
 ; agents will likely not actually communicate (just "talk" as an action),
 ; but possibly could add modifiers to it, dependant on mood and
 ; opinion of others (e.g. talk-friendly, talk-hostile, etc.)
-(setq *operators* '(walk stay-put work sleep eat talk help sing)) ;; TODO: add play
+(setq *operators* '(walk work talk help sing play)) ;; TODO: add play
 
-(defun reward-for-walk? (x z)
-;~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-; Positive if the step to z is x's goal, 0 otherwise
-  (if (eql (gethash x *agent-goal-indices* )
-           (gethash z *agent-goal-indices* )) 10 0))
 (setq walk 
 ; ?x goes from point ?y to adjacent point ?z. For ME, the road was
 ; specified as well, but it doesn't matter here -- only adjacency 
@@ -100,20 +95,7 @@
            :effects '((is_at ?x ?z) (not (is_occupied ?y))
                       (not (is_at ?x ?y)) (is_occupied ?z))
            :time-required 1
-           :value '(reward-for-walk? ?x ?z))); +ve if ?z is ?x's goal, o/w 0
-(setq stay-put
-; Can stay put at any time, but this is dispreferred to walking, unless 
-; the goal has been reached (at which point staying put reaps a big reward)
-  (make-op :name 'stay-put :pars '(?x ?y)
-           :preconds '((is_at ?x ?y))
-           :effects nil
-           :time-required 1
-           :value '(reward-for-stay-put? ?x ?y))); +ve if ?z is ?x's goal, o/w -1
-(defun reward-for-stay-put? (x y)
-;~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-; Positive if y is x's goal, -1 otherwise; (much like reward-for-walk?)
-  (if (eql (gethash x *agent-goal-indices*)
-           (gethash y *agent-goal-indices*)) 10 -1))
+           :value 0))
 
 ; ?x tries to eat ?y, if not full, in same space (?z) and ?y is edible
 ;(setq eat
