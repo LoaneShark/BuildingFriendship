@@ -1377,8 +1377,12 @@
 ; Daphne: Revised 10/9/2012 to handle new representation of terms
 (defun listen! (j); Oct 2/12: agent argument added -LKS
                       ; But actually this isn't needed for the multi-agent world
+<<<<<<< HEAD
 <<<<<<< Updated upstream
 	(let* ((j (gethash agent *agent-goal-indices*))
+=======
+	(let ((j (gethash agent *agent-goal-indices*))
+>>>>>>> 9fc26a1a34af9579024b6ee6ff938461ae6effc3
               (user-input 'NIL) (lst 'NIL) (implied-facts 'NIL) 
 =======
                       ; Apr 25/17: changed agent to j
@@ -1416,7 +1420,7 @@
 			
 			(while tell-lst
 				(setq curr-tell (pop tell-lst))
-				(setq curr-ans (check-yn-fact-in-kb 'NIL curr-tell *world-facts* j 'T))
+				(setq curr-ans (check-yn-fact-in-kb 'NIL curr-tell j *world-facts* 'T))
 				(if (equal curr-ans curr-tell)
 					(prog2
 						(push (list 'tells 'USER (list 'that curr-tell)) lst)

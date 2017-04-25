@@ -1,4 +1,3 @@
-;(compile-file "monitoring-package.lisp")
 (compile-file "gridworld-definitions.lisp")
 (compile-file "gridworld-planning.lisp")
 (compile-file "simulation-and-function-evaluation.lisp")
