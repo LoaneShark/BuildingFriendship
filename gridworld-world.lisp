@@ -46,28 +46,22 @@
 ; following, as part of the def-roadmap function in "gridworld-
 ; definitions.lisp"; so this has to precede the def-roadmap call:
 (defparameter *blocked-points*
-   '(p12 p22 p24 p36 p42 p44 p52 p55 p64 p65))
+   '(p12 p22 p24 p36 p42 p44))
 
 (def-roadmap
-  '(p11 p12 p13 p14 p15 p16
-    p21 p22 p23 p24 p25 p26
-    p31 p32 p33 p34 p35 p36
-    p41 p42 p43 p44 p45 p46
-    p51 p52 p53 p54 p55 p56
-    p61 p62 p63 p64 p65 p66)
-  '((hor1 p11 1 p12 1 p13 1 p14 1 p15 1 p16)
-    (hor2 p21 1 p22 1 p23 1 p24 1 p25 1 p26)
-    (hor3 p31 1 p32 1 p33 1 p34 1 p35 1 p36)
-    (hor4 p41 1 p42 1 p43 1 p44 1 p45 1 p46)
-    (hor5 p51 1 p52 1 p53 1 p54 1 p55 1 p56)
-    (hor6 p61 1 p62 1 p63 1 p64 1 p65 1 p66)
+  '(p11 p12 p13 p14
+    p21 p22 p23 p24
+    p31 p32 p33 p34
+    p41 p42 p43 p44)
+  '((hor1 p11 1 p12 1 p13 1 p14)
+    (hor2 p21 1 p22 1 p23 1 p24)
+    (hor3 p31 1 p32 1 p33 1 p34)
+    (hor4 p41 1 p42 1 p43 1 p44)
 
-    (ver1 p11 1 p21 1 p31 1 p41 1 p51 1 p61)
-    (ver2 p12 1 p22 1 p32 1 p42 1 p52 1 p62)
-    (ver3 p13 1 p23 1 p33 1 p43 1 p53 1 p63)
-    (ver4 p14 1 p24 1 p34 1 p44 1 p54 1 p64)
-    (ver5 p15 1 p25 1 p35 1 p45 1 p55 1 p65)
-    (ver6 p16 1 p26 1 p36 1 p46 1 p56 1 p66)))
+    (ver1 p11 1 p21 1 p31 1 p41)
+    (ver2 p12 1 p22 1 p32 1 p42)
+    (ver3 p13 1 p23 1 p33 1 p43)
+    (ver4 p14 1 p24 1 p34 1 p44)))
 
 ; Note: adjacency knowledge is created as part of *roadmap-knowledge*
 ; in gridworld-definitions.lisp (which is imparted to an agent when
@@ -79,7 +73,7 @@
 ; From an agent's perspective, all locations are initially not occupied,
 ; via the CWA.
 
-(def-object 'agent nil)
+;(def-object 'agent nil)
 
 ;   DECLARATIONS OF PROBLEM-SPECIFIC GLOBALS IN gridworld-definitions.lisp
 ;   (MANY OF WHICH ARE EXPECTED TO BE RESET HERE):
@@ -108,7 +102,7 @@
                     ; We use *some* of these;
 
 
-(defparameter *agent-traits* (make-hash-table :test 'equal))
+(defparameter *agent-traits* (make-hash-table :test #'equal))
 
 ; Some example trait storage, with the values corresponding to (O C E A N)
 (setf (gethash 'Happy *agent-traits*) '(4 3 5 5 1))
@@ -121,10 +115,10 @@
         (butlast *agent-names* (- 7 *n-agents*))))
 (defparameter *agent-positions*
    (make-array *n-agents* :initial-contents 
-        '(P13 P35 P41 P51))); ** may be replaced by randomized positions
+        '(P13 P34 P41 P21))); ** may be replaced by randomized positions
 (defparameter *goals*
    (make-array *n-agents* :initial-contents        
-        '(P61 P26 P51 P21))); ** may be replaced by randomized positions
+        '(P33 P24 P41 P21))); ** may be replaced by randomized positions
 
 (defparameter *agent-goal-indices*; allows hash access to indices, and 
    (make-hash-table :size 23))     ; hence from an agent to its goal or v.v.
