@@ -12,7 +12,7 @@
         (let ((agent (aref *agent-array* j))
               poss-actions step action-name old-wffs old-terms)
 
-(format t "~% GO ~%")
+(format t "~% GO - ~d ~%" j)
                 ;Handle the spontaneous fire and flood.
                 ;(handleExtOps)
                 ; Above line commented out only for opportunic runs

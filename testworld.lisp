@@ -37,7 +37,7 @@
 ; Some example trait storage, with the values corresponding to (O C E A N)
 (setf (gethash 'Happy *agent-traits*) '(4 3 5 5 1))
 (setf (gethash 'Grumpy *agent-traits*) '(2 4 2 1 3))
-(setf (gethash 'Doc *agent-traits*) '(3 5 3 4 2))
+(setf (gethash 'Dopey *agent-traits*) '(3 5 3 4 2))
 (setf (gethash 'Bashful *agent-traits*) '(3 3 1 3 2))
 
 (defparameter *blocked-points*
@@ -81,7 +81,11 @@
 ; agents will likely not actually communicate (just "talk" as an action),
 ; but possibly could add modifiers to it, dependant on mood and
 ; opinion of others (e.g. talk-friendly, talk-hostile, etc.)
-(setq *operators* '(walk work talk help sing play)) ;; TODO: add play
+(setq *operators* '(walk stay-put)) ;; TODO: add play
+
+(setq *search-beam* ; defvar is in gridworld-planning.lisp
+    (list (cons 4 *operators*) (cons 4 *operators*)
+          (cons 3 *operators*) (cons 2 *operators*)))
 
 (setq walk 
 ; ?x goes from point ?y to adjacent point ?z. For ME, the road was
@@ -95,7 +99,49 @@
            :effects '((is_at ?x ?z) (not (is_occupied ?y))
                       (not (is_at ?x ?y)) (is_occupied ?z))
            :time-required 1
-           :value 0))
+           :value '(reward-for-walk? ?x ?z))); +ve if ?z is ?x's goal, o/w 0
+
+(defun reward-for-walk? (x z)
+;~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+; Positive if the step to z is x's goal, 0 otherwise
+  (if (eql (gethash x *agent-goal-indices* )
+           (gethash z *agent-goal-indices* )) 10 0))
+
+(setq walk.actual
+; ?x goes from point ?y to adjacent point ?z. For ME, the road was
+; specified as well, but it doesn't matter here -- only adjacency 
+; matters, and whether the target square is occupied. The value
+; of walking is positive if ?z is the ?x's goal square.
+  (make-op.actual :name 'walk.actual :pars '(?x ?y ?z)
+           :startconds '((is_at ?x ?y) (is_adjacent_to ?y ?z)
+                         (not (is_occupied ?z)))
+           :stopconds '((is_at ?x ?z))
+           :deletes '((is_at ?x ?y) (is_occupied ?y))
+           :adds '((is_at ?x ?z) (is_occupied ?z))))
+
+(setq stay-put
+; Can stay put at any time, but this is dispreferred to walking, unless 
+; the goal has been reached (at which point staying put reaps a big reward)
+  (make-op :name 'stay-put :pars '(?x ?y)
+           :preconds '((is_at ?x ?y))
+           :effects nil
+           :time-required 1
+           :value '(reward-for-stay-put? ?x ?y))); +ve if ?z is ?x's goal, o/w -1
+
+(setq stay-put.actual
+; Can stay put at any time, but this is dispreferred to walking, unless 
+; the goal has been reached (at which point staying put reaps a big reward)
+  (make-op.actual :name 'stay-put.actual :pars '(?x ?y)
+                  :startconds '((is_at ?x ?y))
+                  :stopconds '((is_at ?x ?y))
+                  :deletes nil
+                  :adds nil ))
+
+(defun reward-for-stay-put? (x y)
+;~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+; Positive if y is x's goal, -1 otherwise; (much like reward-for-walk?)
+  (if (eql (gethash x *agent-goal-indices*)
+           (gethash y *agent-goal-indices*)) 10 -1))
 
 ; ?x tries to eat ?y, if not full, in same space (?z) and ?y is edible
 ;(setq eat

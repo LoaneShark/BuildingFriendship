@@ -1375,16 +1375,22 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; Daphne: Revised 10/9/2012 to handle new representation of terms
-(defun listen! (agent); Oct 2/12: agent argument added -LKS
+(defun listen! (j); Oct 2/12: agent argument added -LKS
                       ; But actually this isn't needed for the multi-agent world
+<<<<<<< Updated upstream
 	(let* ((j (gethash agent *agent-goal-indices*))
               (user-input 'NIL) (lst 'NIL) (implied-facts 'NIL) 
+=======
+                      ; Apr 25/17: changed agent to j
+	(let ((agent (aref *agent-array* j))
+		  (user-input 'NIL) (lst 'NIL) (implied-facts 'NIL) 
+>>>>>>> Stashed changes
 		  (tell-lst 'NIL) (neglst 'NIL) curr-tell curr-ans
 		  (new-terms (state-node-terms (aref *curr-state-node* j)))
 		  user-input-intention
 		  (new-wff-htable (state-node-wff-htable (aref *curr-state-node* j)))
 		 )
-		(format t "You're welcome to ask AG a question or tell him a fact.~%")
+		(format t "You're welcome to ask ~s a question or tell him a fact.~%" (nth j *agent-names*))
 		(setq user-input (read))
 		(setq user-input (mapcar #'(lambda(y) (list (first y) (parseIntoPred (second y)))) user-input))
 		(when (and (listp user-input) (not (null user-input)))

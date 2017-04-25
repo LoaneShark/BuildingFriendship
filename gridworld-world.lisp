@@ -148,7 +148,7 @@
 ;     ((knows ?x (that ?y)) => ?y) ; not needed in this world
 ;   ))
 
-(setq *operators* '(walk stay-put)); defvar is in gridworld-planning.lisp
+(setq *operators* '(walk stay-put answer_user_ynq answer_user_whq)); defvar is in gridworld-planning.lisp
 
 ; This solves the problem in about 17 seconds (using a 150-step bound
 ; and with implement-effects uncompiled):
@@ -156,28 +156,131 @@
     (list (cons 4 *operators*) (cons 4 *operators*)
           (cons 3 *operators*) (cons 2 *operators*)))
 
-; This gets AG3 trapped at P11, with AG4 already at its goal P21:
-; (setq *search-beam* ; defvar is in gridworld-planning.lisp
-;     (list (cons 4 *operators*) (cons 4 *operators*)
-;           (cons 4 *operators*) (cons 4 *operators*)))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Function answer_to_ynq? returns a well-formed formula indicating whether 
+;; or not the arg wff is currently in AG's KB, under the closed world 
+;; assumption. For example, if AG is currently hungry according to AG's KB,
+;; then (is_hungry AG) is returned as the response to 
+;; (answer_to_ynq? '(is_hungry AG)); else, (not (is_hungry AG)) is returned.
+;; This is the `model' version.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun answer_to_ynq? (wff)
+  (check-yn-fact-in-kb 'NIL wff (state-node-wff-htable *curr-state-node*))
+)
 
-; This gets AG3 trapped at P11, with AG4 already at its goal P21:
-; (setq *search-beam* ; defvar is in gridworld-planning.lisp
-;    (list (cons 4 *operators*) (cons 3 *operators*)
-;          (cons 3 *operators*) (cons 2 *operators*)
-;          (cons 2 *operators*) (cons 1 *operators*)))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Function answer_to_ynq.actual? returns a well-formed formula indicating  
+;; whether the arg wff is currently in AG's KB, under the closed world 
+;; assumption. In addition, the answer is translated into a proper English 
+;; sentence and printed on screen.  For example, if AG is currently hungry 
+;; according to AG's KB, then (is_hungry AG) is returned as the response to 
+;; (answer_to_ynq.actual? '(is_hungry AG)), and ``AG is hungry'' without the 
+;; double quotes is printed.  Otherwise, (not (is_hungry AG)) is 
+;; returned and ``it is not the case that AG is hungry'' is printed without 
+;; the double quotes.
+;; This is the `actual' version.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun answer_to_ynq.actual? (wff)
+  (check-yn-fact-in-kb 'T wff (state-node-wff-htable *curr-state-node*))
+)
 
-; This solved the problem in 10 seconds, when run with at most 200 steps,
-; with implement-effects uncompiled:
-; (setq *search-beam* ; defvar is in gridworld-planning.lisp
-;    (list (cons 4 *operators*) (cons 4 *operators*)))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Function answer_to_whq? returns a collection of well-formed formula(s) 
+;; as the answer to the arg wff reflecting what are currently in AG's KB, 
+;; under the closed world assumption. Arg wff is a wh-question that has 
+;; variables prefixed with ? appearing in slots filled by wh-words.  
+;; For example, if AG likes only APPLE1 and BANANA2 according to AG's KB,
+;; then ((likes AG APPLE1) (likes AG BANANA2)) is returned as response to 
+;; (answer_to_whq? '(likes AG ?wh)). If no answer is found, 
+;; then '(not (knows (AG the-answer))) is returned.
+;; This is the `model' version.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun answer_to_whq? (wff)
+  (check-whq-answer-in-kb 'NIL wff (state-node-wff-htable *curr-state-node*))
+)
 
-; This succeeded in 13 sec (with much more meandering, but much
-; higher speed), with "implements-effects.lisp" compiled.
-; With the latter uncompiled, it finished in 8 seconds, but
-; with AG3 trapped at P11 by AG4 at P21.
-; (setq *search-beam* ; defvar is in gridworld-planning.lisp
-;    (list (cons 4 *operators*)))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Function answer_to_whq.actual? returns a collection of well-formed 
+;; formula(s) as the answer to the arg wff reflecting what are currently in 
+;; AG's KB, under the closed world assumption. Arg wff is a wh-question 
+;; with variables prefixed with ? appearing in slots filled by wh-words.  
+;; For example, if AG likes only APPLE1 and BANANA2 according to AG's KB,
+;; ((likes AG APPLE1) (likes AG BANANA2)) is returned as the response to 
+;; (answer_to_whq.actual? '(likes AG ?wh)), and ``AG likes APPLE1'' and ``AG likes 
+;; BANANA2'' without double quotes are printed on two lines.  If no answer 
+;; is found, '(not (knows (AG the-answer))) is returned and ``it is not the 
+;; case that AG knows the answer'' without the double quotes is printed .
+;; This is the `actual' version.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun answer_to_whq.actual? (wff)
+  (check-whq-answer-in-kb 'T wff (state-node-wff-htable *curr-state-node*))
+)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; With operator answer_user_ynq, AG answers the yes-no question ?q asked 
+;; by USER.
+;; This is the `model' version.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(setq answer_user_ynq 
+      (make-op :name 'answer_user_ynq :pars '(?q)
+        :preconds '( (wants USER (that (tells AG USER (whether ?q)))) )
+        :effects '( (not (wants USER (that (tells AG USER (whether ?q)))))
+                    (knows USER (that (answer_to_ynq? ?q)))
+            )
+        :time-required 1
+        :value 10
+  )
+)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; With operator answer_user_ynq.actual, AG answers the yes-no question 
+;; ?q asked by USER.
+;; This is the `actual' version.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(setq answer_user_ynq.actual 
+  (make-op.actual :name 'answer_user_ynq.actual :pars '(?q)
+  :startconds '( (wants USER (that (tells AG USER (whether ?q)))) )
+  :stopconds '( (not (wants USER (that (tells AG USER (whether ?q))))) )
+  :deletes '( (wants USER (that (tells AG USER (whether ?q)))) )
+  :adds '( ;(knows USER (that (answer_to_ynq?.actual ?q)))        
+           (says+to+at_time AG (that (answer_to_ynq.actual? ?q)) USER (current_time?))
+           (not (wants USER (that (tells AG USER (whether ?q)))))
+         )
+  )
+)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; With operator answer_user_whq, AG answers the wh-question ?q asked by 
+;; USER.
+;; This is the `model' version.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(setq answer_user_whq 
+  (make-op :name 'answer_user_whq :pars '(?q)
+  :preconds '( (wants USER (that (tells AG USER (answer_to_whq ?q)))) )
+  :effects '( (not (wants USER (that (tells AG USER (answer_to_whq ?q)))))
+        (knows USER (that (answer_to_whq? ?q)))
+        )
+  :time-required 1
+  :value 10
+  )
+)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; With operator answer_user_whq.actual, AG answers the wh-question ?q 
+;; asked by USER.
+;; This is the `actual' version.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(setq answer_user_whq.actual 
+  (make-op.actual :name 'answer_user_whq.actual :pars '(?q)
+  :startconds '( (wants USER (that (tells AG USER (answer_to_whq ?q)))) )
+  :stopconds '( (not (wants USER (that (tells AG USER (answer_to_whq ?q))))) )
+  :deletes '( (wants USER (that (tells AG USER (answer_to_whq ?q)))) )
+  :adds '( ;(knows USER (that (answer_to_whq.actual? ?q)))        
+         (says+to+at_time AG (that (answer_to_whq.actual? ?q)) USER (current_time?))
+         (not (wants USER (that (tells AG USER (answer_to_whq ?q)))))
+       )
+  ) 
+)
 
 ; The only action with a positive value is staying-put at the goal
 ; location, though an agent may also stay put when not at its goal

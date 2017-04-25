@@ -22,13 +22,14 @@
                ; first update the agent's knowledge, since there may
                ; have been local changes cuased by other agents; then go!
                (notice-new-local-facts (aref *curr-state-node* j) agent)
+               (listen! j)
                (go! j) ; this resets the jth agent's current knowledge state;
                        ; naturally, the actual world is altered as well
                        ; and the next agent will act therein;
                ; if the agent is at its goal, put it on the result list
                (setq loc (find-location agent 
                            (state-node-wff-htable (aref *curr-state-node* j))))
-               (when (eql loc (aref *goals* j)) 
+               (when (eql loc (aref *goals* j))
                      (format t "~%~%==> AGENT ~s HAS REACHED ITS GOAL ~s :-)"
                                agent loc)
                      (push agent result)); put agent on success list
