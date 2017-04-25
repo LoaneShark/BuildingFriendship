@@ -1377,7 +1377,7 @@
 ; Daphne: Revised 10/9/2012 to handle new representation of terms
 (defun listen! (agent); Oct 2/12: agent argument added -LKS
                       ; But actually this isn't needed for the multi-agent world
-	(let* ((j (gethash agent *agent-goal-indices*))
+	(let ((j (gethash agent *agent-goal-indices*))
               (user-input 'NIL) (lst 'NIL) (implied-facts 'NIL) 
 		  (tell-lst 'NIL) (neglst 'NIL) curr-tell curr-ans
 		  (new-terms (state-node-terms (aref *curr-state-node* j)))
@@ -1410,7 +1410,7 @@
 			
 			(while tell-lst
 				(setq curr-tell (pop tell-lst))
-				(setq curr-ans (check-yn-fact-in-kb 'NIL curr-tell *world-facts* j 'T))
+				(setq curr-ans (check-yn-fact-in-kb 'NIL curr-tell j *world-facts* 'T))
 				(if (equal curr-ans curr-tell)
 					(prog2
 						(push (list 'tells 'USER (list 'that curr-tell)) lst)
