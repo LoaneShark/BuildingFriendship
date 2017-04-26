@@ -1375,38 +1375,28 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; Daphne: Revised 10/9/2012 to handle new representation of terms
-(defun listen! (j); Oct 2/12: agent argument added -LKS
+(defun listen! (agent); Oct 2/12: agent argument added -LKS
                       ; But actually this isn't needed for the multi-agent world
-<<<<<<< HEAD
-<<<<<<< Updated upstream
 	(let* ((j (gethash agent *agent-goal-indices*))
-=======
-	(let ((j (gethash agent *agent-goal-indices*))
->>>>>>> 9fc26a1a34af9579024b6ee6ff938461ae6effc3
-              (user-input 'NIL) (lst 'NIL) (implied-facts 'NIL) 
-=======
-                      ; Apr 25/17: changed agent to j
-	(let ((agent (aref *agent-array* j))
 		  (user-input 'NIL) (lst 'NIL) (implied-facts 'NIL) 
->>>>>>> Stashed changes
 		  (tell-lst 'NIL) (neglst 'NIL) curr-tell curr-ans
 		  (new-terms (state-node-terms (aref *curr-state-node* j)))
 		  user-input-intention
 		  (new-wff-htable (state-node-wff-htable (aref *curr-state-node* j)))
 		 )
-		(format t "You're welcome to ask ~s a question or tell him a fact.~%" (nth j *agent-names*))
+		(format t "You're welcome to ask ~s a question or tell him a fact.~%" agent)
 		(setq user-input (read))
 		(setq user-input (mapcar #'(lambda(y) (list (first y) (parseIntoPred (second y)))) user-input))
 		(when (and (listp user-input) (not (null user-input)))
 			(dolist (i user-input)
 				(cond 
 					((eq 'ask-yn (car i))
-						(setq user-input-intention (list 'wants 'USER (list 'that (list 'tells 'AG 'USER (list 'whether (second i))))))
+						(setq user-input-intention (list 'wants 'USER (list 'that (list 'tells agent 'USER (list 'whether (second i))))))
 						(push user-input-intention lst)
 						(push (list 'not user-input-intention) neglst)
 					)
 					((eq 'ask-wh (car i))   
-						(setq user-input-intention (list 'wants 'USER (list 'that (list 'tells 'AG 'USER (list 'answer_to_whq (second i))))))
+						(setq user-input-intention (list 'wants 'USER (list 'that (list 'tells agent 'USER (list 'answer_to_whq (second i))))))
 						(push user-input-intention lst)
 						(push (list 'not user-input-intention) neglst)
 					)
@@ -1420,7 +1410,7 @@
 			
 			(while tell-lst
 				(setq curr-tell (pop tell-lst))
-				(setq curr-ans (check-yn-fact-in-kb 'NIL curr-tell j *world-facts* 'T))
+				(setq curr-ans (check-yn-fact-in-kb 'NIL curr-tell *world-facts* j 'T))
 				(if (equal curr-ans curr-tell)
 					(prog2
 						(push (list 'tells 'USER (list 'that curr-tell)) lst)

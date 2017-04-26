@@ -22,7 +22,7 @@
                ; first update the agent's knowledge, since there may
                ; have been local changes cuased by other agents; then go!
                (notice-new-local-facts (aref *curr-state-node* j) agent)
-               (listen! j)
+               (listen! (aref *agent-array* j))
                (go! j) ; this resets the jth agent's current knowledge state;
                        ; naturally, the actual world is altered as well
                        ; and the next agent will act therein;
